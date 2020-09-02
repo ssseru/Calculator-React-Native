@@ -4,21 +4,33 @@ import { StyleSheet, Text, View, Button, TouchableOpacity } from "react-native";
 
 export default function App() {
   const [resultText, setResultText] = useState("");
+  const [calculationText, setCalculationText] = useState("");
+
+  const validate = () => {
+    const text = resultText;
+    switch (text.slice(-1)) {
+      case "+":
+      case "-":
+      case "*":
+      case "/":
+        return false;
+    }
+    return true;
+  };
+
+  const calculateResult = () => {
+    const text = resultText;
+    setCalculationText(eval(text));
+  };
 
   const buttonPressed = (text) => {
-    console.log(text);
-
-    const calculateResult = () => {
-      const text = resultText;
-    };
-
     if (text === "=") {
-      return calculateResult();
+      return validate() && calculateResult();
     }
 
     setResultText((prevText) => prevText + text);
   };
-  ///
+
   const operate = (operation) => {
     switch (operation) {
       case "Del":
@@ -39,9 +51,9 @@ export default function App() {
 
   let rows = [];
   let nums = [
-    [1, 2, 3],
-    [4, 5, 6],
     [7, 8, 9],
+    [4, 5, 6],
+    [1, 2, 3],
     [".", 0, "="],
   ];
   for (let i = 0; i < 4; i++) {
@@ -49,6 +61,7 @@ export default function App() {
     for (let j = 0; j < 3; j++) {
       row.push(
         <TouchableOpacity
+          key={nums[i][j]}
           onPress={() => buttonPressed(nums[i][j])}
           style={styles.btn}
         >
@@ -56,15 +69,29 @@ export default function App() {
         </TouchableOpacity>
       );
     }
-    rows.push(<View style={styles.row}>{row}</View>);
+    rows.push(
+      <View key={i} style={styles.row}>
+        {row}
+      </View>
+    );
   }
+
+  const longPress = (op) => {
+    switch (op) {
+      case "Del":
+        setCalculationText("");
+        setResultText("");
+    }
+  };
 
   let operations = ["Del", "+", "-", "*", "/"];
   let ops = [];
   for (let i = 0; i < 5; i++) {
     ops.push(
       <TouchableOpacity
+        key={ops[i]}
         style={styles.btn}
+        onLongPress={() => longPress(operations[i])}
         onPress={() => operate(operations[i])}
       >
         <Text style={[styles.btnText, styles.white]}>{operations[i]}</Text>
@@ -74,11 +101,14 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.heading}>
+        <Text>rn-calculatorApp</Text>
+      </View>
       <View style={styles.result}>
         <Text style={styles.resultText}>{resultText}</Text>
       </View>
       <View style={styles.calculation}>
-        <Text style={styles.calculationText}>121</Text>
+        <Text style={styles.calculationText}>{calculationText}</Text>
       </View>
       <View style={styles.buttons}>
         <View style={styles.numbers}>{rows}</View>
@@ -92,24 +122,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  heading: {
+    backgroundColor: "#D8B0A8",
+  },
   resultText: {
     fontSize: 35,
-    color: "white",
+    color: "black",
   },
   calculationText: {
     fontSize: 23,
-    color: "white",
+    color: "black",
   },
 
   result: {
     flex: 2,
-    backgroundColor: "red",
+    backgroundColor: "#D8B0A8",
     justifyContent: "flex-end",
     alignItems: "flex-end",
   },
   calculation: {
     flex: 1,
-    backgroundColor: "blue",
+    backgroundColor: "#D8B0A8",
     justifyContent: "flex-end",
     alignItems: "flex-end",
   },
@@ -119,6 +152,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     fontSize: 30,
+    color: "white",
   },
   btn: {
     flex: 1,
@@ -134,11 +168,11 @@ const styles = StyleSheet.create({
   },
   numbers: {
     flex: 3,
-    backgroundColor: "lightblue",
+    backgroundColor: "#434343",
   },
   operations: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: "#636363",
   },
   white: {
     color: "white",
